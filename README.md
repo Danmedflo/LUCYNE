@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LUCYNE
 
-## Getting Started
+Tienda con Next.js 16, React 19, Tailwind CSS 4, Motion y Supabase.
+Incluye catálogo público, filtros, favoritos locales y administración de
+productos, fotografías y variantes.
 
-First, run the development server:
+## Ejecutar en Windows / Visual Studio Code
 
-```bash
+Desde PowerShell en la carpeta del proyecto:
+
+~~~powershell
+cd D:\GitHub\Lucyne
+npm ci
+~~~
+
+Si todavía no tienes .env.local, copia el ejemplo:
+
+~~~powershell
+Copy-Item .env.example .env.local
+~~~
+
+**Si ya tienes .env.local, conserva ese archivo; no lo reemplaces.**
+Completa estas variables con los datos de tu propio proyecto:
+
+~~~dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLICABLE
+NEXT_PUBLIC_WHATSAPP_NUMBER=
+~~~
+
+Usa la clave publicable de Supabase, nunca una clave secreta o service_role.
+.env.local queda excluido de Git. El ejemplo versionado no contiene credenciales.
+
+WhatsApp es opcional: código de país + número, sin espacios ni signo +.
+La portada y la ficha usan la misma variable. Reinicia el servidor tras
+cambiar las variables; para producción vuelve a compilar.
+
+~~~powershell
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+~~~
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Base de datos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+En un proyecto Supabase nuevo, aplica los scripts en este orden:
 
-## Learn More
+1. supabase/migrations/001_catalogo.sql
+2. supabase/migrations/002_administradores.sql
+3. supabase/migrations/003_product_images_storage.sql
+4. supabase/migrations/004_manage_product_images.sql
 
-To learn more about Next.js, take a look at the following resources:
+Si ya los aplicaste y tus productos funcionan, no necesitas ejecutarlos otra vez
+para esta corrección.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Crea el usuario administrador en Supabase Auth e incorpora su UUID en
+public.admin_users.user_id. El acceso se comprueba en el servidor y en las
+acciones administrativas; las tablas y el almacenamiento usan las políticas
+de los scripts anteriores.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Estilos
 
-## Deploy on Vercel
+Tailwind se procesa con @tailwindcss/postcss desde postcss.config.mjs.
+Los archivos .module.css los procesa Next.js de forma nativa.
+No agregues una regla general *.css con @tailwindcss/turbopack: hace que
+los módulos pierdan sus clases en esta configuración.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Si tras actualizar ves estilos antiguos, detén el servidor con Ctrl+C y ejecuta:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+~~~powershell
+if (Test-Path .next) { Remove-Item .next -Recurse -Force }
+npm run dev
+~~~
+
+Después recarga el navegador con Ctrl+F5. .next es salida de compilación.
+
+## Rutas principales
+
+| Ruta | Función |
+| --- | --- |
+| / | Portada y colecciones |
+| /catalogo | Productos publicados y filtros |
+| /catalogo/ID | Fotografías, tallas, colores y consulta |
+| /favoritos | Prendas guardadas en este navegador |
+| /login | Acceso administrativo |
+| /admin | Resumen y gestión del catálogo |
+
+Los favoritos no se sincronizan entre dispositivos. Guardar una prenda no
+reserva stock. La disponibilidad actual es por variante (disponible/agotada),
+no un inventario de unidades.
+
+## Verificación
+
+~~~powershell
+npm run lint
+npm run build
+npm start
+~~~
+
+La compilación necesita las variables de Supabase configuradas. Las fuentes
+Geist de next/font/google también necesitan conexión durante la primera
+compilación. npm start requiere que npm run build termine correctamente.
+
+En tu entorno comprueba: navegación de escritorio/móvil, filtros, favoritos,
+acceso administrativo, creación/edición y subida/gestión de fotografías.
+Las comprobaciones realizadas con una API simulada no sustituyen la
+verificación de las políticas y los datos de tu Supabase real.

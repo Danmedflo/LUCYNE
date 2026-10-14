@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
+import StoreHeader from "@/components/store-header";
+import StoreFooter from "@/components/store-footer";
 
 // Aquí irá el número real de la tienda:
 // código de país + número, sin espacios ni signo +.
-const WHATSAPP_NUMBER = "";
+const WHATSAPP_NUMBER = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "").trim();
 
 const whatsappUrl = /^[1-9]\d{7,14}$/.test(WHATSAPP_NUMBER)
   ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
@@ -94,68 +97,9 @@ export default function Home() {
 
   return (
     <div id="inicio" className="min-h-screen bg-white text-black">
-      <a
-        href="#contenido"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:p-4"
-      >
-        Saltar al contenido
-      </a>
+      <StoreHeader active="home" />
 
-      {/* CABECERA */}
-      <header className="sticky top-0 z-40 border-b border-black/5 bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 px-6 py-3 md:h-22 md:flex-nowrap md:px-12 md:py-0">
-          <a
-            href="#inicio"
-            aria-label="LUCYNE, ir al inicio"
-            className="relative block h-14 w-44 shrink-0 md:w-52"
-          >
-            <Image
-              src="/images/logo-lucyne.png"
-              alt="LUCYNE"
-              fill
-              sizes="208px"
-              className="object-contain"
-            />
-          </a>
-
-          <nav
-            aria-label="Navegación principal"
-            className="flex w-full items-center justify-between gap-5 pb-2 text-sm font-medium md:w-auto md:gap-10 md:pb-0"
-          >
-            <a
-              href="#inicio"
-              className="border-b-2 border-[#EF2E7E] py-2"
-            >
-              Inicio
-            </a>
-
-            <a
-              href="#mujer"
-              className="py-2 transition-colors hover:text-[#B91C5B]"
-            >
-              Mujer
-            </a>
-
-            <a
-              href="#hombre"
-              className="py-2 transition-colors hover:text-[#B91C5B]"
-            >
-              Hombre
-            </a>
-
-            {whatsappUrl && (
-              <a
-                href="#contacto"
-                className="py-2 transition-colors hover:text-[#B91C5B]"
-              >
-                Contacto
-              </a>
-            )}
-          </nav>
-        </div>
-      </header>
-
-      <main id="contenido">
+      <main id="lucyne-main" tabIndex={-1} className="scroll-mt-32">
         {/* PORTADA */}
         <section
           aria-labelledby="titulo-portada"
@@ -208,7 +152,7 @@ export default function Home() {
               </motion.p>
 
               <motion.div {...entrance(0.5)} className="mt-9">
-                <a
+                <Link
                   href="/catalogo"
                   className="inline-flex min-h-14 items-center gap-8 bg-black px-7 py-4 text-sm font-semibold text-white transition-colors hover:bg-[#292929]"
                 >
@@ -216,7 +160,7 @@ export default function Home() {
                   <span aria-hidden="true" className="text-xl">
                     ↗
                   </span>
-                </a>
+                </Link>
               </motion.div>
 
               <motion.p
@@ -280,26 +224,13 @@ export default function Home() {
                       {collection.subtitle}
                     </p>
 
-                    {whatsappUrl && (
-                      <a
-                        href={`${whatsappUrl}&`}
-                        onClick={(event) => {
-                          // El enlace específico se define abajo.
-                          event.preventDefault();
-                          window.open(
-                            `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-                              `¡Hola, LUCYNE! Quiero consultar por la colección ${collection.title}.`,
-                            )}`,
-                            "_blank",
-                            "noopener,noreferrer",
-                          );
-                        }}
-                        className="mt-6 inline-flex items-center gap-4 border-b border-white/60 pb-2 text-sm font-medium"
-                      >
-                        Consultar colección
-                        <span aria-hidden="true">↗</span>
-                      </a>
-                    )}
+                    <Link
+                      href={"/catalogo?audience=" + collection.id}
+                      className="mt-6 inline-flex items-center gap-4 border-b border-white/60 pb-2 text-sm font-medium"
+                    >
+                      Explorar colección
+                      <span aria-hidden="true">↗</span>
+                    </Link>
                   </div>
                 </article>
               </Reveal>
@@ -357,17 +288,7 @@ export default function Home() {
         )}
       </main>
 
-      <footer className="border-t border-black/10 px-6 py-8 md:px-12">
-        <div className="mx-auto flex max-w-[1504px] flex-col justify-between gap-4 text-sm text-black/60 sm:flex-row">
-          <p className="font-semibold text-black">
-            LUCYNE · Tu estilo. A tu manera.
-          </p>
-
-          <a href="#inicio" className="hover:text-black">
-            Volver al inicio ↑
-          </a>
-        </div>
-      </footer>
+      <StoreFooter />
 
       {/* BOTÓN FLOTANTE */}
       {whatsappUrl && (

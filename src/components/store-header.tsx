@@ -49,7 +49,6 @@ export default function StoreHeader({ active }: { active?: "home" | "catalog" | 
       <header ref={headerRef} className={styles.header} onBlur={(event) => {
         if (event.relatedTarget instanceof Node && !event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}>
-        <div className={styles.strip}>TU ESTILO. A TU MANERA.</div>
         <div className={styles.headerRow}>
           <Link href="/" aria-label="LUCYNE, inicio" className={styles.brand} onClick={() => setOpen(false)}>
             <Image src="/images/logo-lucyne.png" width={176} height={62} alt="LUCYNE" className={styles.logo} />

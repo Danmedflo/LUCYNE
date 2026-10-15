@@ -31,7 +31,9 @@ export default function ProductDetail({
   const searchParams = useSearchParams();
   const returnQuery = searchParams.toString();
   const fromFavorites = searchParams.get("from") === "favorites";
-  const catalogUrl = fromFavorites ? "/favoritos" : "/catalogo" + (returnQuery ? "?" + returnQuery : "");
+  const fromHome = searchParams.get("from") === "home";
+  const homeUrl = searchParams.get("section") === "destacados" ? "/#destacados" : "/#novedades";
+  const catalogUrl = fromFavorites ? "/favoritos" : fromHome ? homeUrl : "/catalogo" + (returnQuery ? "?" + returnQuery : "");
   const [photoId, setPhotoId] = useState("");
   const [color, setColor] = useState("");
   const [size, setSize] = useState("");
@@ -67,7 +69,7 @@ export default function ProductDetail({
           <Link href="/admin" className="text-sm font-semibold text-black/60 hover:text-black">← Volver al administrador</Link>
         </nav>
         ) : (
-          <Link href={catalogUrl} className={styles.back}>{fromFavorites ? "← Volver a favoritos" : "← Volver al catálogo"}</Link>
+          <Link href={catalogUrl} className={styles.back}>{fromFavorites ? "← Volver a favoritos" : fromHome ? "← Volver al inicio" : "← Volver al catálogo"}</Link>
         )}
 
         <div className="grid items-start gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-14">

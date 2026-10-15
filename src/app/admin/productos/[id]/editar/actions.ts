@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { validateProductCategory } from "@/lib/categories";
 import { requireAdmin } from "@/lib/auth/require-admin";
 
 type EditState = { error: string };
@@ -24,6 +25,8 @@ export async function updateProductAction(
   const price = String(formData.get("price") ?? "").trim().replace(",", ".");
   const audience = String(formData.get("audience") ?? "");
   const status = String(formData.get("status") ?? "");
+  const categoryId = String(formData.get("category_id") ?? "").trim();
+  const featured = formData.get("featured") === "on";
 
   if (name.length < 2 || name.length > 120) {
     return { error: "El nombre debe tener entre 2 y 120 caracteres." };
@@ -42,9 +45,11 @@ export async function updateProductAction(
   }
 
   try {
+    const categoryError = await validateProductCategory(supabase, categoryId);
+    if (categoryError) return { error: categoryError };
     const { data, error } = await supabase
       .from("products")
-      .update({ name, description, price, audience, status })
+      .update({ name, description, price, audience, status, category_id: categoryId || null, featured })
       .eq("id", productId)
       .eq("updated_at", previousVersion)
       .select("id")
@@ -68,6 +73,7 @@ export async function updateProductAction(
   revalidatePath("/admin/productos/" + productId + "/fotos");
   revalidatePath("/admin/productos/" + productId + "/variantes");
   revalidatePath("/catalogo");
+  revalidatePath("/");
   revalidatePath("/catalogo/" + productId);
   redirect("/admin");
 }

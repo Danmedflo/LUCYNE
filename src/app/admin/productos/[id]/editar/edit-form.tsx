@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import type { Category } from "@/lib/categories";
+import ProductOrganizationFields from "@/components/product-organization-fields";
 import { useActionState, useState, type ChangeEvent } from "react";
 import { updateProductAction } from "./actions";
 
@@ -12,6 +14,8 @@ type EditableProduct = {
   audience: string;
   status: string;
   updated_at: string;
+  category_id: string | null;
+  featured: boolean;
 };
 
 const statusDescriptions: Record<string, string> = {
@@ -20,7 +24,7 @@ const statusDescriptions: Record<string, string> = {
   archived: "Se retirará del catálogo. Podrás volver a publicarlo cuando quieras.",
 };
 
-export default function EditForm({ product }: { product: EditableProduct }) {
+export default function EditForm({ product, categories }: { product: EditableProduct; categories: Category[] }) {
   const action = updateProductAction.bind(null, product.id, product.updated_at);
   const [state, formAction, pending] = useActionState(action, { error: "" });
   const [values, setValues] = useState({
@@ -29,6 +33,8 @@ export default function EditForm({ product }: { product: EditableProduct }) {
     price: product.price.toFixed(2),
     audience: product.audience,
     status: product.status,
+    category_id: product.category_id ?? "",
+    featured: product.featured,
   });
   const [showServerError, setShowServerError] = useState(true);
 
@@ -85,6 +91,10 @@ export default function EditForm({ product }: { product: EditableProduct }) {
             {statusDescriptions[values.status]}
           </p>
         </div>
+
+        <ProductOrganizationFields categories={categories} categoryId={values.category_id} featured={values.featured}
+          onCategory={(category_id) => setValues((current) => ({ ...current, category_id }))}
+          onFeatured={(featured) => setValues((current) => ({ ...current, featured }))} />
 
         {state.error && showServerError && (
           <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-700">{state.error}</p>

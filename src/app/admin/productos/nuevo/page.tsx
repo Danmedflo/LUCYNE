@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { loadCategories } from "@/lib/categories";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import ProductForm from "./product-form";
@@ -10,8 +12,9 @@ export const metadata = {
   },
 };
 
-export default async function NewProductPage() {
-  await requireAdmin();
+async function NewProductContent() {
+  const { supabase } = await requireAdmin();
+  const categories = await loadCategories(supabase);
 
   return (
     <main className="min-h-screen bg-[#F2F2F2] px-5 py-10 sm:py-14">
@@ -37,8 +40,12 @@ export default async function NewProductPage() {
           </p>
         </header>
 
-        <ProductForm />
+        <ProductForm categories={categories} />
       </div>
     </main>
   );
+}
+
+export default function NewProductPage() {
+  return <Suspense fallback={<main className="min-h-screen bg-[#F2F2F2] p-10"><p role="status">Cargando formulario…</p></main>}><NewProductContent /></Suspense>;
 }

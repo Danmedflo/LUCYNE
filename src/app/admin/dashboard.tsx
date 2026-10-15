@@ -155,6 +155,7 @@ export default function Dashboard({ products }: { products: DashboardProduct[] }
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className={"rounded-full px-2.5 py-1 text-[11px] font-semibold " + (product.status === "published" ? "bg-emerald-50 text-emerald-800" : product.status === "draft" ? "bg-amber-50 text-amber-900" : "bg-black/5 text-black/60")}>{STATUS_LABELS[product.status]}</span>
+                        {product.featured && <span className="rounded-full bg-pink-50 px-2.5 py-1 text-[11px] font-semibold text-[#B91C5B]">Destacado</span>}
                         <span className="text-xs text-black/50">{AUDIENCE_LABELS[product.audience]}</span>
                       </div>
                       <h3 className="mt-2 break-words text-base font-bold">

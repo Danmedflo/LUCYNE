@@ -12,6 +12,7 @@ function refreshPhotos(productId: string) {
   revalidatePath("/admin");
   revalidatePath("/admin/productos/" + productId + "/fotos");
   revalidatePath("/catalogo");
+  revalidatePath("/");
   revalidatePath("/catalogo/" + productId);
 }
 

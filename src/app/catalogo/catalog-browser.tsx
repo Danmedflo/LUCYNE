@@ -112,6 +112,15 @@ export default function CatalogBrowser({ products }: { products: CatalogProduct[
   const filtered = useMemo(() => filterCatalog(products, filters), [products, filters]);
   const sizes = useMemo(() => filterOptions(products, "size"), [products]);
   const colors = useMemo(() => filterOptions(products, "color"), [products]);
+  const categories = useMemo(() => {
+    const names = new Map<string, string>();
+    for (const product of products) {
+      if (product.category_id && product.category_name) names.set(product.category_id, product.category_name);
+    }
+    return [...names].sort((a, b) => a[1].localeCompare(b[1], "es"));
+  }, [products]);
+  const featuredCount = products.filter((product) => product.featured).length;
+  const chipClass = (active: boolean) => "rounded-full border px-5 py-3 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B91C5B] " + (active ? "border-black bg-black text-white" : "border-black/15 bg-white text-black/65 hover:border-[#B91C5B] hover:text-[#B91C5B]");
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const page = Math.min(filters.page, pages);
   const start = (page - 1) * PAGE_SIZE;
@@ -135,8 +144,21 @@ export default function CatalogBrowser({ products }: { products: CatalogProduct[
 
   return (
     <>
+      <section aria-label="Explorar la colección" className="mb-7 space-y-5">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Selección de productos">
+          <button type="button" aria-pressed={!filters.featured} onClick={() => navigate({ ...filters, featured: false, page: 1 })} className={chipClass(!filters.featured)}>Toda la colección</button>
+          <button type="button" aria-pressed={filters.featured} onClick={() => navigate({ ...filters, featured: true, page: 1 })} className={chipClass(filters.featured)}>Destacados <span className="ml-2 text-xs opacity-70">{featuredCount}</span></button>
+        </div>
+        {categories.length > 0 && <div>
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-black/50">Encuentra tu estilo</p>
+          <div role="group" aria-label="Filtrar por categoría" className="flex flex-wrap gap-2">
+            <button type="button" aria-pressed={!filters.category} onClick={() => navigate({ ...filters, category: "", page: 1 })} className={chipClass(!filters.category)}>Todas las categorías</button>
+            {categories.map(([id, name]) => <button key={id} type="button" aria-pressed={filters.category === id} onClick={() => navigate({ ...filters, category: id, page: 1 })} className={chipClass(filters.category === id)}>{name}</button>)}
+          </div>
+        </div>}
+      </section>
       <FilterForm key={query} initial={filters} sizes={sizes} colors={colors} onApply={(next) => navigate(next)} onReset={() => navigate({ ...DEFAULT_FILTERS })} />
-      <section id="catalog-results" aria-label="Resultados del catálogo" className="scroll-mt-6">
+      <section id="catalog-results" aria-label="Resultados del catálogo" className="scroll-mt-28">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <p role="status" aria-live="polite" className="text-sm text-black/60">
             {filtered.length === 0 ? "No encontramos coincidencias." : "Mostrando " + (start + 1) + "–" + Math.min(start + PAGE_SIZE, filtered.length) + " de " + filtered.length + (filtered.length === 1 ? " producto" : " productos")}
@@ -146,7 +168,7 @@ export default function CatalogBrowser({ products }: { products: CatalogProduct[
         {visible.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-black/20 bg-white/60 p-12 text-center">
             <h2 className="text-xl font-bold">Probemos otra combinación.</h2>
-            <p className="mt-3 text-sm text-black/60">Cambia la talla, el color o el rango de precio para ver más prendas.</p>
+            <p className="mt-3 text-sm text-black/60">Prueba otra categoría o ajusta los filtros para ver más prendas.</p>
             <button type="button" onClick={() => navigate({ ...DEFAULT_FILTERS })} className="mt-6 rounded-full bg-black px-6 py-3 text-sm font-bold text-white">Ver toda la colección</button>
           </div>
         ) : (
@@ -162,10 +184,11 @@ export default function CatalogBrowser({ products }: { products: CatalogProduct[
                       {product.image_url ? (
                         <Image src={product.image_url} alt={product.image_alt} fill unoptimized sizes="(max-width: 640px) 95vw, (max-width: 1024px) 45vw, 300px" className="object-contain p-3 transition-transform duration-300 motion-safe:group-hover:scale-[1.03]" />
                       ) : <div className="flex h-full items-center justify-center text-sm text-black/50">Fotografía próximamente</div>}
+                      {product.featured && <span className="absolute right-3 top-3 rounded-full bg-[#B91C5B] px-3 py-1 text-xs font-semibold text-white">Destacado</span>}
                       {soldOut && <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-black/65">{filters.size || filters.color ? "Combinación agotada" : "Agotado"}</span>}
                     </div>
                     <div className="p-5">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B91C5B]">{audienceLabels[product.audience] ?? product.audience}</p>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#B91C5B]">{audienceLabels[product.audience] ?? product.audience}{product.category_name ? " · " + product.category_name : ""}</p>
                       <h2 className="mt-2 break-words text-lg font-bold">{product.name}</h2>
                       {product.description && <p className="mt-2 line-clamp-2 break-words text-sm leading-relaxed text-black/60">{product.description}</p>}
                       <p className="mt-4 text-xl font-black">{currency.format(product.price)}</p>

@@ -1,3 +1,5 @@
+import { CATEGORY_ID } from "./categories";
+
 export type CatalogVariant = {
   size: string;
   color: string;
@@ -13,11 +15,16 @@ export type CatalogProduct = {
   created_at: string;
   image_url: string | null;
   image_alt: string;
+  category_id: string | null;
+  category_name: string | null;
+  featured: boolean;
   variants: CatalogVariant[];
 };
 
 export type CatalogFilters = {
   q: string;
+  category: string;
+  featured: boolean;
   audience: string;
   size: string;
   color: string;
@@ -29,7 +36,7 @@ export type CatalogFilters = {
 };
 
 export const DEFAULT_FILTERS: CatalogFilters = {
-  q: "", audience: "", size: "", color: "", min: "", max: "",
+  category: "", featured: false, q: "", audience: "", size: "", color: "", min: "", max: "",
   available: false, sort: "recent", page: 1,
 };
 export const PAGE_SIZE = 12;
@@ -50,6 +57,8 @@ export function readFilters(params: { get(name: string): string | null }): Catal
   const sort = params.get("sort") ?? "";
   const rawPage = params.get("page") ?? "1";
   return {
+    category: CATEGORY_ID.test(params.get("category") ?? "") ? params.get("category")!.toLowerCase() : "",
+    featured: params.get("featured") === "1",
     q: (params.get("q") ?? "").trim().slice(0, 120),
     audience: ["mujer", "hombre", "unisex"].includes(audience) ? audience : "",
     size: normalizeText((params.get("size") ?? "").slice(0, 20)),
@@ -65,6 +74,8 @@ export function readFilters(params: { get(name: string): string | null }): Catal
 export function filtersQuery(filters: CatalogFilters) {
   const params = new URLSearchParams();
   if (filters.q.trim()) params.set("q", filters.q.trim());
+  if (filters.category) params.set("category", filters.category);
+  if (filters.featured) params.set("featured", "1");
   if (filters.audience) params.set("audience", filters.audience);
   if (filters.size) params.set("size", filters.size);
   if (filters.color) params.set("color", filters.color);
@@ -88,6 +99,8 @@ export function filterCatalog(products: CatalogProduct[], filters: CatalogFilter
   const filtered = products.filter((product) => {
     const searchable = normalizeText(product.name + " " + product.description);
     if (!words.every((word) => searchable.includes(word))) return false;
+    if (filters.category && product.category_id !== filters.category) return false;
+    if (filters.featured && !product.featured) return false;
     if (filters.audience && product.audience !== filters.audience) return false;
     if (min !== null && product.price < min) return false;
     if (max !== null && product.price > max) return false;

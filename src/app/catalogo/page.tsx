@@ -1,3 +1,4 @@
+import { loadCategories } from "@/lib/categories";
 import { Suspense } from "react";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { CatalogProduct } from "@/lib/catalog-filters";
@@ -13,6 +14,8 @@ export const metadata = {
 
 async function CatalogData() {
   const supabase = createPublicClient();
+  const categories = await loadCategories(supabase);
+  const categoryNames = new Map(categories.map((category) => [category.id, category.name]));
   const products: CatalogProduct[] = [];
   let offset = 0;
   let total: number | null = null;
@@ -21,7 +24,7 @@ async function CatalogData() {
   while (true) {
     const { data, error, count } = await supabase
       .from("products")
-      .select("id, name, description, price, audience, created_at, product_images(id, storage_path, alt_text, sort_order, created_at), product_variants(size, color, is_available)", {
+      .select("id, name, description, price, audience, created_at, category_id, featured, product_images(id, storage_path, alt_text, sort_order, created_at), product_variants(size, color, is_available)", {
         count: offset === 0 ? "exact" : undefined,
       })
       .eq("status", "published")
@@ -47,6 +50,9 @@ async function CatalogData() {
         description: product.description,
         price: Number(product.price),
         audience: product.audience,
+        category_id: product.category_id,
+        category_name: categoryNames.get(product.category_id) ?? null,
+        featured: product.featured,
         created_at: product.created_at,
         image_url: cover ? supabase.storage.from("product-images").getPublicUrl(cover.storage_path).data.publicUrl : null,
         image_alt: cover?.alt_text || product.name,
@@ -69,7 +75,7 @@ export default function CatalogPage() {
         <header className={styles.enter + " py-10 sm:py-14"}>
           <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#B91C5B]">Tu estilo. A tu manera.</p>
           <h1 className="mt-3 text-5xl font-black tracking-tight sm:text-7xl">Catálogo<span className="text-[#EF2E7E]">.</span></h1>
-          <p className="mt-4 max-w-xl text-black/60">Encuentra tu próxima prenda por talla, color y precio.</p>
+          <p className="mt-4 max-w-xl text-black/60">Explora por categoría y descubre nuestra selección de destacados.</p>
         </header>
         <Suspense fallback={<p role="status" className="rounded-2xl bg-white p-8 text-black/60">Cargando colección…</p>}>
           <CatalogData />

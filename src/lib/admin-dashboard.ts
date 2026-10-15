@@ -5,6 +5,7 @@ export type DashboardProduct = {
   id: string;
   name: string;
   price: number;
+  featured: boolean;
   status: ProductStatus;
   audience: ProductAudience;
   created_at: string;

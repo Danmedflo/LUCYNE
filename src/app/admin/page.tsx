@@ -21,7 +21,7 @@ async function AdminContent() {
   while (true) {
     const { data, error, count } = await supabase
       .from("products")
-      .select("id, name, price, status, audience, created_at, product_images(id, storage_path, alt_text, sort_order, created_at), product_variants(id, is_available)", {
+      .select("id, name, price, featured, status, audience, created_at, product_images(id, storage_path, alt_text, sort_order, created_at), product_variants(id, is_available)", {
         count: offset === 0 ? "exact" : undefined,
       })
       .order("created_at", { ascending: false })
@@ -46,6 +46,7 @@ async function AdminContent() {
         id: product.id,
         name: product.name,
         price: Number(product.price),
+        featured: product.featured,
         status: product.status,
         audience: product.audience,
         created_at: product.created_at,
@@ -71,6 +72,7 @@ async function AdminContent() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link href="/admin/productos/nuevo" className="rounded-full bg-black px-5 py-3 text-sm font-semibold text-white hover:bg-[#B91C5B]">+ Agregar producto</Link>
+          <Link href="/admin/categorias" className="rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-semibold hover:bg-black/5">Categorías</Link>
           <Link href="/" className="rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-semibold hover:bg-black/5">Ver tienda</Link>
           <form action={logoutAction}>
             <button type="submit" className="rounded-full px-4 py-3 text-sm font-semibold text-black/60 hover:bg-black/5">Cerrar sesión</button>

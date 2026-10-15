@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { loadCategories } from "@/lib/categories";
 import EditForm from "./edit-form";
 
 export const metadata = {
@@ -16,11 +17,12 @@ async function EditContent({ params }: { params: Promise<{ id: string }> }) {
 
   const { data: product, error } = await supabase
     .from("products")
-    .select("id, name, description, price, audience, status, updated_at")
+    .select("id, name, description, price, audience, status, updated_at, category_id, featured")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error("No se pudo cargar el producto.");
   if (!product) notFound();
+  const categories = await loadCategories(supabase);
 
   return (
     <main className="min-h-screen bg-[#F2F2F2] px-5 py-10 sm:py-14">
@@ -35,7 +37,7 @@ async function EditContent({ params }: { params: Promise<{ id: string }> }) {
             <Link href={"/admin/productos/" + id + "/variantes"} className="rounded-full border border-black/15 bg-white px-4 py-2 text-sm font-semibold hover:bg-black/5">Tallas y colores</Link>
           </div>
         </header>
-        <EditForm product={{
+        <EditForm categories={categories} product={{
           id: product.id,
           name: product.name,
           description: product.description,
@@ -43,6 +45,8 @@ async function EditContent({ params }: { params: Promise<{ id: string }> }) {
           audience: product.audience,
           status: product.status,
           updated_at: product.updated_at,
+          category_id: product.category_id,
+          featured: product.featured,
         }} />
       </div>
     </main>

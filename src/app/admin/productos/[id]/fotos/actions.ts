@@ -116,6 +116,7 @@ export async function uploadProductImage(
   revalidatePath("/admin/productos/" + productId + "/fotos");
   revalidatePath("/admin");
   revalidatePath("/catalogo");
+  revalidatePath("/");
   revalidatePath("/catalogo/" + productId);
 
   return { error: "", success: "Fotografía guardada correctamente." };

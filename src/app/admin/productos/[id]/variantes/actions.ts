@@ -11,6 +11,7 @@ function refreshProduct(id: string) {
   revalidatePath("/admin");
   revalidatePath("/admin/productos/" + id + "/variantes");
   revalidatePath("/catalogo");
+  revalidatePath("/");
   revalidatePath("/catalogo/" + id);
 }
 

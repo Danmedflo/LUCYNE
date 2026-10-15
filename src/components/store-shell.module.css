@@ -1,5 +1,4 @@
 .header { position: sticky; top: 0; z-index: 40; color: #151515; background: rgb(255 255 255 / 96%); backdrop-filter: blur(14px); border-bottom: 1px solid #e7e7e7; }
-.strip { padding: 7px 20px; background: #111; color: #fff; text-align: center; font-size: 9px; font-weight: 600; letter-spacing: .26em; line-height: 1.5; }
 .headerRow { display: flex; align-items: center; justify-content: space-between; gap: 28px; min-height: 84px; max-width: 1280px; margin: 0 auto; padding: 12px 0; }
 .brand { display: inline-flex; align-items: center; flex-shrink: 0; }
 .logo { width: 154px; height: auto; max-height: 56px; object-fit: contain; }
@@ -17,7 +16,7 @@
 .header a:focus-visible, .header button:focus-visible, .footer a:focus-visible { outline: 2px solid #ef2e7e; outline-offset: 5px; }
 .skip { position: fixed; top: 10px; left: 16px; z-index: 100; transform: translateY(-160%); border-radius: 10px; padding: 12px 18px; background: #111; color: #fff; font-size: 14px; font-weight: 600; }
 .skip:focus { transform: none; outline: 2px solid #ef2e7e; outline-offset: 3px; }
-.main { min-height: 55vh; scroll-margin-top: 130px; }
+.main { min-height: 55vh; scroll-margin-top: 104px; }
 .enter { animation: lucyne-enter 420ms ease-out both; }
 .back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 20px; color: #626262; font-size: 12px; font-weight: 600; text-decoration: none; }
 .back:hover { color: #b91c5b; }
@@ -50,7 +49,7 @@
   .logo { width: 130px; max-height: 48px; }
   .desktopNav { display: none; }
   .menuButton { display: inline-flex; }
-  .mobilePanel:not([hidden]) { display: block; max-height: calc(100dvh - 105px); overflow-y: auto; border-top: 1px solid #eee; background: #fff; padding: 12px 20px 20px; animation: lucyne-enter 180ms ease-out both; }
+  .mobilePanel:not([hidden]) { display: block; max-height: calc(100dvh - 73px); overflow-y: auto; border-top: 1px solid #eee; background: #fff; padding: 12px 20px 20px; animation: lucyne-enter 180ms ease-out both; }
   .mobileLink { display: flex; align-items: center; gap: 16px; min-height: 55px; padding: 12px 4px; border-bottom: 1px solid #eee; font-size: 17px; font-weight: 600; text-decoration: none; color: #202020; }
   .mobileLink:hover, .mobileLink[aria-current] { color: #b91c5b; }
   .linkNumber { color: #999; font-size: 10px; letter-spacing: .05em; font-weight: 500; }

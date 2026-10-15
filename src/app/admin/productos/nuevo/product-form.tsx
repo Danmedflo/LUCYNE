@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import type { Category } from "@/lib/categories";
+import ProductOrganizationFields from "@/components/product-organization-fields";
 import { useActionState, useState, type ChangeEvent } from "react";
 import { createProductAction } from "./actions";
 
-export default function ProductForm() {
+export default function ProductForm({ categories }: { categories: Category[] }) {
   const [state, formAction, pending] = useActionState(
     createProductAction,
     { error: "" }
@@ -16,6 +18,8 @@ export default function ProductForm() {
     price: "",
     audience: "unisex",
     status: "draft",
+    category_id: "",
+    featured: false,
   });
 
   function handleChange(
@@ -134,12 +138,20 @@ export default function ProductForm() {
           </p>
         </div>
 
+        <ProductOrganizationFields categories={categories} categoryId={values.category_id} featured={values.featured}
+          onCategory={(category_id) => setValues((current) => ({ ...current, category_id }))}
+          onFeatured={(featured) => setValues((current) => ({ ...current, featured }))} />
+
         {state.error && (
           <p
             role="alert"
             className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"
           >
-            {state.error}
+            <ProductOrganizationFields categories={categories} categoryId={values.category_id} featured={values.featured}
+          onCategory={(category_id) => setValues((current) => ({ ...current, category_id }))}
+          onFeatured={(featured) => setValues((current) => ({ ...current, featured }))} />
+
+        {state.error}
           </p>
         )}
 

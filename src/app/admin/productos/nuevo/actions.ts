@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { validateProductCategory } from "@/lib/categories";
 import { requireAdmin } from "@/lib/auth/require-admin";
 
 type FormState = {
@@ -22,6 +23,8 @@ export async function createProductAction(
     .replace(",", ".");
   const audience = String(formData.get("audience") ?? "");
   const status = String(formData.get("status") ?? "");
+  const categoryId = String(formData.get("category_id") ?? "").trim();
+  const featured = formData.get("featured") === "on";
 
   if (name.length < 2 || name.length > 120) {
     return { error: "El nombre debe tener entre 2 y 120 caracteres." };
@@ -54,12 +57,16 @@ export async function createProductAction(
       .replace(/^-+|-+$/g, "") || "producto";
 
   try {
+    const categoryError = await validateProductCategory(supabase, categoryId);
+    if (categoryError) return { error: categoryError };
     const { error } = await supabase.from("products").insert({
       name,
       description,
       price: rawPrice,
       audience,
       status,
+      category_id: categoryId || null,
+      featured,
       slug: `${slugBase}-${randomUUID()}`,
     });
 
@@ -78,5 +85,6 @@ export async function createProductAction(
 
   revalidatePath("/admin");
   revalidatePath("/catalogo");
+  revalidatePath("/");
   redirect("/admin");
 }
